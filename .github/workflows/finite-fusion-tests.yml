@@ -1,0 +1,35 @@
+name: Finite Fusion host tests
+
+on:
+  pull_request:
+    paths:
+      - 'src/finite_fusion_*.c'
+      - 'include/finite_fusion_*.h'
+      - 'tools/finite_fusion/**'
+      - '.github/workflows/finite-fusion-tests.yml'
+  push:
+    branches: [master]
+    paths:
+      - 'src/finite_fusion_*.c'
+      - 'include/finite_fusion_*.h'
+      - 'tools/finite_fusion/**'
+      - '.github/workflows/finite-fusion-tests.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  host-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Compile and run production-core tests
+        run: bash tools/finite_fusion/test.sh
+      - name: Address and undefined-behavior sanitizers
+        run: |
+          cc -std=c99 -Wall -Wextra -Werror -pedantic \
+            -fsanitize=address,undefined -g -Iinclude \
+            src/finite_fusion_stats.c src/finite_fusion_lifecycle.c \
+            tools/finite_fusion/test_lifecycle.c -o /tmp/ff-lifecycle-test
+          /tmp/ff-lifecycle-test
