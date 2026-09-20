@@ -10,9 +10,9 @@
 
 STATIC_ASSERT(PARTY_SIZE == FF_PARTY_CAPACITY, FiniteFusionPartyCapacity);
 STATIC_ASSERT(sizeof(struct Pokemon) <= FF_RECORD_MAX_BYTES, FiniteFusionRecordCapacity);
-STATIC_ASSERT(STAT_HP == FF_STAT_HP && STAT_ATK == FF_STAT_ATTACK
-    && STAT_DEF == FF_STAT_DEFENSE && STAT_SPEED == FF_STAT_SPEED
-    && STAT_SPATK == FF_STAT_SP_ATTACK && STAT_SPDEF == FF_STAT_SP_DEFENSE,
+STATIC_ASSERT((int)STAT_HP == (int)FF_STAT_HP && (int)STAT_ATK == (int)FF_STAT_ATTACK
+    && (int)STAT_DEF == (int)FF_STAT_DEFENSE && (int)STAT_SPEED == (int)FF_STAT_SPEED
+    && (int)STAT_SPATK == (int)FF_STAT_SP_ATTACK && (int)STAT_SPDEF == (int)FF_STAT_SP_DEFENSE,
     FiniteFusionStatOrder);
 
 static unsigned int ReadNativeRecord(const void *record, struct FiniteFusionFacts *facts)
