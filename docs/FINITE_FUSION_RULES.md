@@ -6,11 +6,11 @@ Keep Emerald's story, maps and encounters for the first playable version. Target
 Gen I-III component species, not the entire expansion roster. Whether to restrict
 the initial roster further to the Hoenn regional Dex remains open.
 
-Implemented so far: the stat module and an isolated fuse/reverse/split transaction
-core with host tests. Neither is connected to live Pokemon or native saves yet.
-No items, sprites or new save fields are active. Ordinary Pokemon and existing
-saves are unchanged. No GBA build or emulator validation is claimed. See
-[the save audit](FINITE_FUSION_SAVE_AUDIT.md) for verification and remaining gates.
+Implemented so far: stat and lifecycle cores with host tests, plus an opt-in native
+saved copy sandbox and debug menu. Default builds retain the original save layout
+and gameplay. `make FF_NATIVE_DEBUG=1` changes the layout and requires a new test
+save. See [native debug testing](FINITE_FUSION_NATIVE_DEBUG.md) for scope and the
+remaining emulator checklist, and [the initial save audit](FINITE_FUSION_SAVE_AUDIT.md).
 
 ## Base stats and strength
 
@@ -77,9 +77,10 @@ per-species anchors may be needed. Hand-drawn overrides require permission/credi
 ## Ordered milestones
 
 1. **Stat foundation (implemented):** shared C calculation and exhaustive host tests.
-2. **Save prototype (partially implemented):** isolated transaction core and logical
-   checkpoint/reload tests complete; native save layout, engine adapter, debug
-   commands and actual save/reset/load tests are still pending.
+2. **Save prototype (partially implemented):** isolated core and logical reload
+   tests complete; native copy adapter, dedicated optional storage and debug
+   commands added. Actual emulator save/reset/load tests and production save
+   design remain pending.
 3. **Engine integration:** per-mon base-stat accessor, normal-mon regression tests,
    level-up recalculation, ability/type handling, no free healing or bonus stacking.
 4. **Visual proof:** one front/back fusion, then summary and party icon, then arbitrary

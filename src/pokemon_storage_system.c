@@ -1702,6 +1702,10 @@ void ResetPokemonStorageSystem(void)
 {
     u16 boxId, boxPosition;
 
+#if FF_NATIVE_DEBUG
+    memset(&gPokemonStoragePtr->finiteFusion, 0, sizeof(gPokemonStoragePtr->finiteFusion));
+#endif
+
     SetCurrentBox(0);
     for (boxId = 0; boxId < TOTAL_BOXES_COUNT; boxId++)
     {
