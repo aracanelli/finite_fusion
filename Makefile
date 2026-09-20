@@ -92,6 +92,11 @@ endif
 
 CPP := $(PREFIX)cpp
 
+FF_NATIVE_DEBUG ?= 0
+ifeq ($(FF_NATIVE_DEBUG),1)
+  FILE_NAME := $(FILE_NAME)-fusion
+  BUILD_NAME := $(BUILD_NAME)-fusion
+endif
 ifeq ($(RELEASE),1)
 	FILE_NAME := $(FILE_NAME)-release
 endif
@@ -156,7 +161,7 @@ O_LEVEL ?= g
 else
 O_LEVEL ?= 2
 endif
-CPPFLAGS := $(INCLUDE_CPP_ARGS) -Wno-trigraphs -DMODERN=1 -DTESTING=$(TEST) -D$(GAME_VERSION) -std=gnu17
+CPPFLAGS := $(INCLUDE_CPP_ARGS) -Wno-trigraphs -DMODERN=1 -DTESTING=$(TEST) -D$(GAME_VERSION) -DFF_NATIVE_DEBUG=$(FF_NATIVE_DEBUG) -std=gnu17
 ifeq ($(RELEASE),1)
 	override CPPFLAGS += -DRELEASE
 	ifeq ($(USE_LTO_ON_RELEASE),1)

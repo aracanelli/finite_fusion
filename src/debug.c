@@ -314,6 +314,14 @@ static void DebugAction_Party_ClearPokerus(u8 taskId);
 static void DebugAction_Party_ClearParty(u8 taskId);
 static void DebugAction_Party_SetParty(u8 taskId);
 static void DebugAction_Party_BattleSingle(u8 taskId);
+#if FF_NATIVE_DEBUG
+static void DebugAction_FF_Capture(u8 taskId);
+static void DebugAction_FF_Fuse(u8 taskId);
+static void DebugAction_FF_Reverse(u8 taskId);
+static void DebugAction_FF_Split(u8 taskId);
+static void DebugAction_FF_Validate(u8 taskId);
+static void DebugAction_FF_Stats(u8 taskId);
+#endif
 
 static void DebugAction_Trainers_SwitchDoublesFlag(u8 taskId);
 static void DebugAction_Trainers_SetRematch(u8 taskId);
@@ -638,6 +646,14 @@ static const struct DebugMenuOption sDebugMenu_Actions_EditPokemon[] =
 
 static const struct DebugMenuOption sDebugMenu_Actions_Party[] =
 {
+#if FF_NATIVE_DEBUG
+    { COMPOUND_STRING("FF copy party"), DebugAction_FF_Capture },
+    { COMPOUND_STRING("FF fuse copies 1+2"), DebugAction_FF_Fuse },
+    { COMPOUND_STRING("FF reverse copy 1"), DebugAction_FF_Reverse },
+    { COMPOUND_STRING("FF split copy 1"), DebugAction_FF_Split },
+    { COMPOUND_STRING("FF validate copies"), DebugAction_FF_Validate },
+    { COMPOUND_STRING("FF preview base stats"), DebugAction_FF_Stats },
+#endif
     { COMPOUND_STRING("Move Relearner"),     DebugAction_ExecuteScript, Common_EventScript_MoveRelearner },
     { COMPOUND_STRING("Hatch an Egg"),       DebugAction_ExecuteScript, Debug_HatchAnEgg },
     { COMPOUND_STRING("Heal party"),         DebugAction_Party_HealParty },
@@ -4616,6 +4632,57 @@ static void DebugAction_BerryFunctions_Weeds(u8 taskId)
 
 // *******************************
 // Actions Party/Boxes
+
+#if FF_NATIVE_DEBUG
+static void DebugAction_FF_Run(u8 taskId, enum FiniteFusionNativeAction action)
+{
+    enum FiniteFusionResult result = FiniteFusionNativeAction(action);
+    const u8 *message;
+    switch (result)
+    {
+    case FF_OK: message = COMPOUND_STRING("OK"); break;
+    case FF_BAD_ARGUMENT: message = COMPOUND_STRING("Invalid selection"); break;
+    case FF_CORRUPT_STATE: message = COMPOUND_STRING("Uninitialized or invalid"); break;
+    case FF_INELIGIBLE: message = COMPOUND_STRING("Ineligible Pokemon"); break;
+    case FF_ALREADY_FUSED: message = COMPOUND_STRING("Already fused"); break;
+    case FF_NOT_FUSED: message = COMPOUND_STRING("Not fused"); break;
+    case FF_STORAGE_FULL: message = COMPOUND_STRING("Partner storage full"); break;
+    case FF_PARTY_FULL: message = COMPOUND_STRING("Copy party full"); break;
+    default: message = COMPOUND_STRING("Unknown result"); break;
+    }
+    StringCopy(gStringVar1, message);
+    ConvertIntToDecimalStringN(gStringVar2, FiniteFusionNativeCount(), STR_CONV_MODE_LEFT_ALIGN, 1);
+    StringExpandPlaceholders(gStringVar4, COMPOUND_STRING("FF sandbox: {STR_VAR_1}\nParty copies: {STR_VAR_2}\nYour real party is unchanged."));
+    Debug_DestroyMenu_Full_Script(taskId, Debug_ShowFieldMessageStringVar4);
+}
+
+static void DebugAction_FF_Capture(u8 taskId) { DebugAction_FF_Run(taskId, FF_NATIVE_CAPTURE); }
+static void DebugAction_FF_Fuse(u8 taskId) { DebugAction_FF_Run(taskId, FF_NATIVE_FUSE); }
+static void DebugAction_FF_Reverse(u8 taskId) { DebugAction_FF_Run(taskId, FF_NATIVE_REVERSE); }
+static void DebugAction_FF_Split(u8 taskId) { DebugAction_FF_Run(taskId, FF_NATIVE_SPLIT); }
+static void DebugAction_FF_Validate(u8 taskId) { DebugAction_FF_Run(taskId, FF_NATIVE_VALIDATE); }
+
+static void DebugAction_FF_Stats(u8 taskId)
+{
+    struct FiniteFusionBaseStats stats;
+    if (FiniteFusionNativePreview(&stats) != FF_OK)
+        StringCopy(gStringVar4, COMPOUND_STRING("Fuse copies before previewing stats."));
+    else
+    {
+        u8 *dest = gStringVar4;
+        const u8 *labels[] = {COMPOUND_STRING("HP "), COMPOUND_STRING(" ATK "),
+            COMPOUND_STRING(" DEF "), COMPOUND_STRING("\nSPE "),
+            COMPOUND_STRING(" SPA "), COMPOUND_STRING(" SPD ")};
+        for (u32 i = 0; i < FF_STAT_COUNT; i++)
+        {
+            dest = StringCopy(dest, labels[i]);
+            dest = ConvertIntToDecimalStringN(dest, stats.values[i], STR_CONV_MODE_LEFT_ALIGN, 3);
+        }
+        StringCopy(dest, COMPOUND_STRING("\nBase stats only; copies unchanged."));
+    }
+    Debug_DestroyMenu_Full_Script(taskId, Debug_ShowFieldMessageStringVar4);
+}
+#endif
 
 static void DebugAction_Party_HealParty(u8 taskId)
 {

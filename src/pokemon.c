@@ -1346,6 +1346,19 @@ static u16 CalculateBoxMonChecksum(struct BoxPokemon *boxMon)
     return checksum;
 }
 
+// Read-only validation: unlike some getters this cannot mark the source Bad Egg.
+bool32 IsBoxMonChecksumValid(const struct BoxPokemon *boxMon)
+{
+    u32 checksum = 0;
+    u32 key = boxMon->otId ^ boxMon->personality;
+    for (u32 i = 0; i < ARRAY_COUNT(boxMon->secure.raw); i++)
+    {
+        u32 word = boxMon->secure.raw[i] ^ key;
+        checksum += word + (word >> 16);
+    }
+    return (u16)checksum == boxMon->checksum;
+}
+
 static u16 CalculateBoxMonChecksumDecrypt(struct BoxPokemon *boxMon)
 {
     u32 checksum = 0;
